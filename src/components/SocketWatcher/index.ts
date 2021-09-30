@@ -1,10 +1,14 @@
 import { useEffect } from 'react';
 
-import socket from 'socket';
+import { SocketClient } from 'socket';
 
-export const SocketWatcher = () => {
+export interface SocketWathcerProps {
+  socket: SocketClient;
+}
+
+export const SocketWatcher = ({ socket }: SocketWathcerProps) => {
   useEffect(() => {
-    socket.connect();
+    socket.init();
   }, []);
 
   return null;
