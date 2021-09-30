@@ -3,16 +3,26 @@ import { DefaultEventsMap } from 'socket.io-client/build/typed-events';
 
 class SocketClient {
   public io!: Socket<DefaultEventsMap, DefaultEventsMap>;
+  private host: string | undefined;
+  private port: string | undefined;
 
   constructor() {
-    const host = process.env.REACT_APP_SOCKET_HOST;
-    const port = process.env.REACT_APP_SOCKET_PORT;
+    this.host = process.env.REACT_APP_SOCKET_HOST;
+    this.port = process.env.REACT_APP_SOCKET_PORT;
+  }
 
-    this.io = createClient(`http://${host}:${port}`, {
+  connect = () => {
+    this.io = createClient(`http://${this.host}:${this.port}`, {
       transports: ['websocket'],
       upgrade: false,
     });
-  }
+
+    this.io.on('connect', this.listenEvents);
+  };
+
+  listenEvents = () => {
+    this.io.on('user-list', (data) => console.log(data));
+  };
 }
 
 export default new SocketClient();
