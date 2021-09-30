@@ -3,6 +3,10 @@ import logo from './logo.svg';
 import './App.css';
 import { generatePublicKey } from './helpers/generatePublicKey';
 
+import sockClient from './socket';
+
+sockClient;
+
 console.log(generatePublicKey(10, 100));
 
 function App() {
