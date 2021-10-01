@@ -11,6 +11,12 @@ export const $currentUserName = createStore<string>('').on(
   (_, name) => name
 );
 
+export const changedUserConnected = createEvent<boolean>();
+export const $userConnected = createStore<boolean>(false).on(
+  changedUserConnected,
+  (_, conn) => conn
+);
+
 export const changedCurrentUsersList = createEvent<User[]>();
 export const setCurrentUsersList = createEvent<User[]>();
 export const $onlineUsersList = createStore<User[]>([]).on(

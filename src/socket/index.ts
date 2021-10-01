@@ -1,13 +1,12 @@
 import { io as createClient, Socket } from 'socket.io-client';
 import { DefaultEventsMap } from 'socket.io-client/build/typed-events';
-import { setCurrentUsersList } from 'store/users';
+import { addedInvite, shiftInvite } from 'store/invites';
+import { changedUserConnected, setCurrentUsersList } from 'store/users';
 
 export class SocketClient {
   public io!: Socket<DefaultEventsMap, DefaultEventsMap>;
   private host: string | undefined;
   private port: string | undefined;
-  private connectedToChatService = false;
-  private invitedRoomsIds: string[] = [];
 
   constructor() {
     this.host = process.env.REACT_APP_SOCKET_HOST;
@@ -25,20 +24,19 @@ export class SocketClient {
 
   listenEvents = () => {
     this.io.on('user-list', (data) => {
-      console.log(data);
       setCurrentUsersList(data.users);
     });
 
-    this.io.on(
-      'connected-to-chat-service',
-      () => (this.connectedToChatService = true)
-    );
+    this.io.on('connected-to-chat-service', () => changedUserConnected(true));
 
-    this.io.on('recive-invite', ({ roomId }) => {
-      this.invitedRoomsIds.push(roomId);
+    this.io.on('recive-invite', ({ roomId, username }) => {
+      addedInvite({ roomId, username });
     });
 
-    this.io.on('invite-accepted', console.log);
+    this.io.on('invite-accepted', (data) => {
+      console.log(data);
+      shiftInvite();
+    });
   };
 
   connect = (username: string) => {
@@ -50,11 +48,8 @@ export class SocketClient {
   };
 
   acceptInvite = (roomId: string) => {
-    this.invitedRoomsIds.shift();
     this.io.emit('accept-invite', { roomId });
   };
-
-  isConnected = () => this.connectedToChatService;
 }
 
 export default new SocketClient();

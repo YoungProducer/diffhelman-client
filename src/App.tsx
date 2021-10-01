@@ -1,12 +1,38 @@
 import { ChangeEvent, useState } from 'react';
 import { useStore } from 'effector-react';
 
+import { $invites, Invite } from 'store/invites';
 import { SocketWatcher } from 'components/SocketWatcher';
-import { $onlineUsersList, changedCurrentUsername } from 'store/users';
+import {
+  $onlineUsersList,
+  $userConnected,
+  changedCurrentUsername,
+} from 'store/users';
 import socket from './socket';
 import './App.css';
 
+interface InviteProps {
+  invite?: Invite;
+}
+
+const InviteModal = ({ invite }: InviteProps) => {
+  if (!invite) return null;
+
+  const acceptInvite = () => {
+    socket.acceptInvite(invite.roomId);
+  };
+
+  return (
+    <div>
+      <button onClick={acceptInvite}>Accept</button>
+    </div>
+  );
+};
+
 function App() {
+  const invites = useStore($invites);
+
+  const userConnected = useStore($userConnected);
   const usersList = useStore($onlineUsersList);
 
   const [username, setUsername] = useState<string>('');
@@ -21,18 +47,33 @@ function App() {
     socket.connect(username);
   };
 
+  const handleUserClick = (username: string) => {
+    socket.invite(username);
+  };
+
   return (
     <div className="App">
       <SocketWatcher socket={socket} />
-      <input value={username} onChange={onChange} type="text" />
-      <button onClick={onClick}>Connect</button>
 
-      <div>
-        <h3>Users list</h3>
-        {usersList.map((user) => (
-          <p>Username: {user.username}</p>
-        ))}
-      </div>
+      {!userConnected && (
+        <div>
+          <input value={username} onChange={onChange} type="text" />
+          <button onClick={onClick}>Connect</button>
+        </div>
+      )}
+
+      {userConnected && (
+        <div>
+          <h3>Users list</h3>
+          {usersList.map((user) => (
+            <p onClick={() => handleUserClick(user.username)}>
+              Username: {user.username}
+            </p>
+          ))}
+        </div>
+      )}
+
+      <InviteModal invite={invites[0]} />
     </div>
   );
 }
