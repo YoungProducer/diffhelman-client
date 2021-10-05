@@ -1,7 +1,10 @@
 import { io as createClient, Socket } from 'socket.io-client';
 import { DefaultEventsMap } from 'socket.io-client/build/typed-events';
 import { addedInvite, shiftInvite } from 'store/invites';
+import { changedKeys, generateCommonKey } from 'store/keys';
+import { changedRoomId } from 'store/room';
 import { changedUserConnected, setCurrentUsersList } from 'store/users';
+import { AcceptInviteKeyResData, InviteAcceptedData } from './types';
 
 export class SocketClient {
   public io!: Socket<DefaultEventsMap, DefaultEventsMap>;
@@ -33,9 +36,14 @@ export class SocketClient {
       addedInvite({ roomId, username });
     });
 
-    this.io.on('invite-accepted', (data) => {
-      console.log(data);
+    this.io.on('invite-accepted', (data: InviteAcceptedData) => {
+      changedKeys(data.keys);
+      changedRoomId(data.roomId);
       shiftInvite();
+    });
+
+    this.io.on('accept-public-key', ({ key }: AcceptInviteKeyResData) => {
+      generateCommonKey(key);
     });
   };
 
@@ -49,6 +57,10 @@ export class SocketClient {
 
   acceptInvite = (roomId: string) => {
     this.io.emit('accept-invite', { roomId });
+  };
+
+  sendPublicKey = (roomId: string, key: number) => {
+    this.io.emit('send-public-key', { roomId, key });
   };
 }
 

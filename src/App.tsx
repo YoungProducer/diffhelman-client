@@ -1,7 +1,8 @@
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent, useEffect, useState } from 'react';
 import { useStore } from 'effector-react';
 
 import { $invites, Invite } from 'store/invites';
+import { $keys } from 'store/keys';
 import { SocketWatcher } from 'components/SocketWatcher';
 import {
   $onlineUsersList,
@@ -31,6 +32,12 @@ const InviteModal = ({ invite }: InviteProps) => {
 
 function App() {
   const invites = useStore($invites);
+
+  const keys = useStore($keys);
+
+  useEffect(() => {
+    console.log(keys);
+  }, [keys]);
 
   const userConnected = useStore($userConnected);
   const usersList = useStore($onlineUsersList);
