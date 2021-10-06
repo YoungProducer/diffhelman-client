@@ -103,7 +103,7 @@ sample({
   fn: ({ privateKey, sharedKeys }, publicKey) => {
     if (!privateKey || !sharedKeys.p) return null;
 
-    const key = power(privateKey, publicKey, sharedKeys.p);
+    const key = power(publicKey, privateKey, sharedKeys.p);
 
     return key;
   },
