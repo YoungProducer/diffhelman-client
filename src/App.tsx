@@ -73,7 +73,10 @@ function App() {
         <div>
           <h3>Users list</h3>
           {usersList.map((user) => (
-            <p onClick={() => handleUserClick(user.username)}>
+            <p
+              onClick={() => handleUserClick(user.username)}
+              style={{ cursor: 'pointer' }}
+            >
               Username: {user.username}
             </p>
           ))}
